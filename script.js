@@ -11,6 +11,13 @@ for (let y = startYear; y <= endYear; y++) {
   }
 }
 
+/* another scenario pakai folder yg ada aja YYYY-MM
+
+const monthsList = ['2023-01',
+                    '2023-02',];
+
+*/
+
 // Create tile layers dynamically
 const orthophotos = {};
 monthsList.forEach(dateStr => {
@@ -18,6 +25,7 @@ monthsList.forEach(dateStr => {
   orthophotos[dateStr] = L.tileLayer(`tiles/${dateStr}/{z}/{x}/{y}.png`, {
     maxZoom: 19,
     attribution: "Your attribution here",
+    errorTileUrl: 'path/to/transparent-tile.png' //Optional fallback tile
   });
 });
 
