@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Orthophoto Time Slider with Play Button</title>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: Arial, sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    background: #f0f0f0;
+  }
+  #map {
+    width: 90vw;
+    height: 500px;
+    margin-top: 10px;
+    position: relative;
+  }
+  #sliderContainer {
+    margin-top: 10px;
+    width: 90vw;
+    max-width: 600px;
+    text-align: center;
+  }
+  #loading {
+    position: absolute;
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.9);
+    padding: 6px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #333;
+    display: none;
+    z-index: 1000;
+  }
+  #controls {
+    margin-top: 8px;
+  }
+  button {
+    font-size: 1rem;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h2>Orthophoto Viewer Over Time</h2>
+
+<div id="map">
+  <div id="loading">Loading orthophoto...</div>
+</div>
+
+<div id="sliderContainer">
+  <input
+    type="range"
+    id="timeSlider"
+    min="2015"
+    max="2020"
+    step="1"
+    value="2015"
+  />
+  <div>Year: <span id="yearLabel">2015</span></div>
+  <div id="controls">
+    <button id="playPauseBtn">Play ▶️</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map("map").setView([37.7749, -122.4194], 12);
+
+  const orthophotos = {
+    2015: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors",
+    }),
+    2016: L.tileLayer("https://tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "&copy; OpenStreetMap contributors",
+    }),
+    2017: L.tileLayer("https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg", {
+      maxZoom: 18,
+      attribution: "Map tiles by Stamen Design",
+    }),
+    2018: L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors, HOT",
+      subdomains: "abc",
+    }),
+    2019: L.tileLayer("https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=YOUR_API_KEY", {
+      maxZoom: 22,
+      attribution: "&copy; Thunderforest",
+    }),
+    2020: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors",
+    }),
+  };
+
+  let currentYear = 2015;
+  let currentLayer = orthophotos[currentYear];
+  currentLayer.addTo(map);
+
+  const slider = document.getElementById("timeSlider");
+  const yearLabel = document.getElementById("yearLabel");
+  const loadingIndicator = document.getElementById("loading");
+  const playPauseBtn = document.getElementById("playPauseBtn");
+
+  let playInterval = null;
+
+  function showLoading() {
+    loadingIndicator.style.display = "block";
+  }
+  function hideLoading() {
+    loadingIndicator.style.display = "none";
+  }
+
+  function addLoadingEvents(layer) {
+    layer.on("loading", showLoading);
+    layer.on("load", hideLoading);
+  }
+
+  addLoadingEvents(currentLayer);
+
+  slider.addEventListener("input", (e) => {
+    const year = +e.target.value;
+    if (year === currentYear) return;
+
+    yearLabel.textContent = year;
+    showLoading();
+
+    map.removeLayer(currentLayer);
+    currentLayer = orthophotos[year];
+
+    addLoadingEvents(currentLayer);
+    currentLayer.addTo(map);
+
+    currentYear = year;
+  });
+
+  playPauseBtn.addEventListener("click", () => {
+    if (playInterval) {
+      // Pause
+      clearInterval(playInterval);
+      playInterval = null;
+      playPauseBtn.textContent = "Play ▶️";
+    } else {
+      // Play
+      playPauseBtn.textContent = "Pause ⏸️";
+      playInterval = setInterval(() => {
+        let nextYear = currentYear + 1;
+        if (nextYear > 2020) nextYear = 2015;
+        slider.value = nextYear;
+        slider.dispatchEvent(new Event('input'));
+      }, 1500);
+    }
+  });
+</script>
+</body>
+</html>
