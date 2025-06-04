@@ -1,0 +1,38 @@
+body, html {
+  margin: 0; padding: 0; height: 100%;
+  font-family: Arial, sans-serif;
+  display: flex; flex-direction: column; align-items: center;
+  background: #f0f0f0;
+}
+#map {
+  width: 90vw;
+  height: 500px;
+  margin-top: 10px;
+  position: relative;
+}
+#sliderContainer {
+  margin-top: 10px;
+  width: 90vw;
+  max-width: 700px;
+  text-align: center;
+}
+#loading {
+  position: absolute;
+  top: 10px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.9);
+  padding: 6px 15px;
+  border-radius: 4px;
+  font-weight: bold;
+  color: #333;
+  display: none;
+  z-index: 1000;
+}
+#controls {
+  margin-top: 8px;
+}
+button {
+  font-size: 1rem;
+  padding: 6px 12px;
+  cursor: pointer;
+}
